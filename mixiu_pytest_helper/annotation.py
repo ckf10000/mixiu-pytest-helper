@@ -12,10 +12,10 @@
 import traceback
 import logging.config
 from functools import wraps
-from mixiu_pytest_helper.dir import get_project_path
+from mixiu_pytest_helper.dir import get_package_path
 from distributed_logging.parse_yaml import ProjectConfig
 
-config = ProjectConfig(project_home=get_project_path()).get_object()
+config = ProjectConfig(project_home=get_package_path()).get_object()
 logging_plus = getattr(config, "logging")
 logging.config.dictConfig(logging_plus)
 

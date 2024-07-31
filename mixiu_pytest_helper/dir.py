@@ -34,3 +34,7 @@ def get_project_path():
     # 执行文件所在的路径
     exec_path = get_exec_path()
     return find_configuration_path(exec_path) or exec_path
+
+
+def get_package_path() -> str:
+    return os.path.dirname(os.path.abspath(__file__))
