@@ -10,8 +10,8 @@
 # ---------------------------------------------------------------------------------------------------------
 """
 import os
-
-from airtest_helper.dir import get_project_path as get_exec_path, is_dir, join_path
+import shutil
+from airtest_helper.dir import get_project_path as get_exec_path, is_dir, join_path, is_file, is_exists
 
 
 def find_configuration_path(current_path):
@@ -38,3 +38,12 @@ def get_project_path():
 
 def get_package_path() -> str:
     return os.path.dirname(os.path.abspath(__file__))
+
+
+def copy_file(src_file_path: str, dst_path: str) -> None:
+    if is_file(file_path=src_file_path) is True:
+        file_name = os.path.basename(src_file_path)
+        dst_file_path = str(join_path([dst_path, file_name]))
+        if is_exists(file_name=dst_file_path) is False:
+            # 临时将 pytest.ini 复制到当前目录
+            shutil.copy(src_file_path, dst_file_path)

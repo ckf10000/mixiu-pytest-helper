@@ -1,2 +1,2 @@
-include mixiu_pytest_helper\configuration\*.yaml
+include mixiu_pytest_helper\*.yaml
 include mixiu_pytest_helper\*.ini

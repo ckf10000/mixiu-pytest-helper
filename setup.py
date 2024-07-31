@@ -13,7 +13,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='mixiu-pytest-helper',
-    version='0.0.9',
+    version='0.1.0',
     description='This is my mixiu pytest helper package',
     long_description='This is my mixiu pytest helper package',
     author='ckf10000',
