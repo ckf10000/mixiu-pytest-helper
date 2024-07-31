@@ -13,13 +13,14 @@ from setuptools import setup, find_packages
 
 setup(
     name='mixiu-pytest-helper',
-    version='0.0.7',
+    version='0.0.9',
     description='This is my mixiu pytest helper package',
     long_description='This is my mixiu pytest helper package',
     author='ckf10000',
     author_email='ckf10000@sina.com',
     url='https://github.com/ckf10000/mixiu-pytest-helper',
     packages=find_packages(),
+    include_package_data=True,  # 确保包括 MANIFEST.in 指定的文件
     install_requires=[
         'pytest>=8.3.1',
         'mixiu-app-helper>=0.1.2',
