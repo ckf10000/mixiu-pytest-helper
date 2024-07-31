@@ -75,5 +75,7 @@ def run_tests(script_path: str = None):
     allure_dir = join_path([project_path, "allure-results"])
     pytest_args = ['--alluredir={}'.format(allure_dir)]
     if script_path is not None:
+        if script_path == "__main__":
+            script_path = sys.argv[0]
         pytest_args.append(script_path)
     pytest.main(pytest_args)
