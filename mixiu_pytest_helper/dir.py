@@ -36,14 +36,7 @@ def get_project_path():
     return find_configuration_path(exec_path) or exec_path
 
 
-def get_package_path() -> str:
-    return os.path.dirname(os.path.abspath(__file__))
-
-
-def copy_file(src_file_path: str, dst_path: str) -> None:
-    if is_file(file_path=src_file_path) is True:
-        file_name = os.path.basename(src_file_path)
-        dst_file_path = str(join_path([dst_path, file_name]))
-        if is_exists(file_name=dst_file_path) is False:
-            # 临时将 pytest.ini 复制到当前目录
-            shutil.copy(src_file_path, dst_file_path)
+def save_file(content: str, file_path: str) -> None:
+    if is_dir(os.path.dirname(file_path)) is True:
+        with open(file_path, 'w') as f:
+            f.write(content)

@@ -14,18 +14,18 @@ import pytest
 import logging.config
 from distributed_logging.parse_yaml import ProjectConfig
 from airtest_helper.dir import join_path, create_directory
-from mixiu_pytest_helper.dir import get_project_path, copy_file, get_package_path
+from mixiu_pytest_helper.dir import get_project_path, save_file
+from mixiu_pytest_helper.config import logging_config, pytest_config
 
 
 def run_tests(script_path: str = None):
     project_path = get_project_path()
-    package_path = get_package_path()
-    config_path = str(join_path([project_path, "configuration"]))
-    config_template = str(join_path([package_path, "pytest.ini"]))
-    logging_template = str(join_path([package_path, "logging.yaml"]))
-    copy_file(src_file_path=config_template, dst_path=project_path)
-    create_directory(dir_path=config_path)
-    copy_file(src_file_path=logging_template, dst_path=config_path)
+    config_dir = join_path([project_path, "configuration"])
+    logging_template = str(join_path([config_dir, "logging.yaml"]))
+    pytest_template = str(join_path([project_path, "pytest.ini"]))
+    create_directory(dir_path=config_dir)
+    save_file(content=logging_config, file_path=logging_template)
+    save_file(content=pytest_config, file_path=pytest_template)
     config = ProjectConfig(project_home=get_project_path()).get_object()
     logging_plus = getattr(config, "logging")
     logging.config.dictConfig(logging_plus)
