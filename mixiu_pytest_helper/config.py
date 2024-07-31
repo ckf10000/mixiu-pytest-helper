@@ -18,6 +18,7 @@ apollo_params_map = {
 }
 
 pytest_config = r"""[pytest]
+addopts = --strict-markers --tb=short -v -ra -q -s
 markers =
     smoke: mark a test as a smoke test.
     regression: mark a test as a regression test.

@@ -30,7 +30,7 @@ def run_tests(script_path: str = None):
     logging_plus = getattr(config, "logging")
     logging.config.dictConfig(logging_plus)
     allure_dir = join_path([project_path, "allure-results"])
-    pytest_args = ['--strict-markers', '--tb=short', '-v', '-ra', '-q', '-s', '--alluredir={}'.format(allure_dir)]
+    pytest_args = ['--alluredir={}'.format(allure_dir)]
     if script_path is not None:
         if script_path == "__main__":
             script_path = sys.argv[0]
