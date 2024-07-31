@@ -17,8 +17,7 @@ apollo_params_map = {
     "domain": "http://139.199.225.100:30080",  # 通过命令行传递赋值
 }
 
-pytest_config = r"""
-[pytest]
+pytest_config = r"""[pytest]
 markers =
     smoke: mark a test as a smoke test.
     regression: mark a test as a regression test.
@@ -34,8 +33,7 @@ filterwarnings =
     ignore:.*_SixMetaPathImporter.find_spec.*:ImportWarning
 """
 
-logging_config = r"""
-development:
+logging_config = r"""development:
   version: 1
   disable_existing_loggers: false
   formatters:

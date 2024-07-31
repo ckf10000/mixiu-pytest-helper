@@ -38,5 +38,5 @@ def get_project_path():
 
 def save_file(content: str, file_path: str) -> None:
     if is_dir(os.path.dirname(file_path)) is True:
-        with open(file_path, 'w') as f:
+        with open(file_path, 'w', encoding="utf-8") as f:
             f.write(content)
