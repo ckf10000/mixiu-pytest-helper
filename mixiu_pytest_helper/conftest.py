@@ -78,8 +78,17 @@ def run_tests(script_path: str = None):
             #     '-q',
             #     '-s',
             #     '--alluredir=allure-results',
-            'tests'  # 测试文件所在的目录
+            __name__  # 当前执行文件
         ]
     else:
-        pytest_args = ['__name__']
+        pytest_args = [
+            #     '--strict-markers',
+            #     '--tb=short',
+            #     '-v',
+            #     '-ra',
+            #     '-q',
+            #     '-s',
+            #     '--alluredir=allure-results',
+            script_path  # 测试文件所在的目录
+        ]
     pytest.main(pytest_args)
