@@ -11,8 +11,10 @@
 """
 import sys
 import pytest
+from airtest_helper.dir import join_path
 from airtest_helper.core import DeviceProxy
 from mixiu_pytest_helper.annotation import logger
+from mixiu_pytest_helper.dir import get_project_path
 from mixiu_pytest_helper.repository import MiddlewareRepository
 from mixiu_pytest_helper.infrastructure import RedisCacheClientManager, RedisLockClientManager, RedisClientManager
 
@@ -69,26 +71,9 @@ def redis_context() -> RedisClientManager:
 
 
 def run_tests(script_path: str = None):
-    if script_path is None:
-        pytest_args = [
-            #     '--strict-markers',
-            #     '--tb=short',
-            #     '-v',
-            #     '-ra',
-            #     '-q',
-            #     '-s',
-            #     '--alluredir=allure-results',
-            __name__  # 当前执行文件
-        ]
-    else:
-        pytest_args = [
-            #     '--strict-markers',
-            #     '--tb=short',
-            #     '-v',
-            #     '-ra',
-            #     '-q',
-            #     '-s',
-            #     '--alluredir=allure-results',
-            script_path  # 测试文件所在的目录
-        ]
+    project_path = get_project_path()
+    allure_dir = join_path([project_path, "allure-results"])
+    pytest_args = ['--alluredir={}'.format(allure_dir)]
+    if script_path is not None:
+        pytest_args.append(script_path)
     pytest.main(pytest_args)
