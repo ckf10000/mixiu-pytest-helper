@@ -66,3 +66,20 @@ def redis_context() -> RedisClientManager:
     redis_api = RedisClientManager(redis=redis_client)
     yield redis_api
     redis_api.redis.close()
+
+
+def run_tests(script_path: str = None):
+    if script_path is None:
+        pytest_args = [
+            #     '--strict-markers',
+            #     '--tb=short',
+            #     '-v',
+            #     '-ra',
+            #     '-q',
+            #     '-s',
+            #     '--alluredir=allure-results',
+            'tests'  # 测试文件所在的目录
+        ]
+    else:
+        pytest_args = ['__name__']
+    pytest.main(pytest_args)

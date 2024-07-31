@@ -13,7 +13,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='mixiu-pytest-helper',
-    version='0.0.1',
+    version='0.0.2',
     description='This is my mixiu pytest helper package',
     long_description='This is my mixiu pytest helper package',
     author='ckf10000',
@@ -22,7 +22,7 @@ setup(
     packages=find_packages(),
     install_requires=[
         'pytest>=8.3.1',
-        'mixiu-app-helper>=0.1.1',
+        'mixiu-app-helper>=0.1.2',
         'distributed-logging>=0.0.3',
         'python-apollo-proxy>=0.1.7',
         'middleware-help-python>=0.1.3'
@@ -33,4 +33,3 @@ setup(
         'Operating System :: OS Independent',
     ],
 )
-
