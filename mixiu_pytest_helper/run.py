@@ -11,6 +11,8 @@
 """
 import sys
 import pytest
+import logging.config
+from distributed_logging.parse_yaml import ProjectConfig
 from airtest_helper.dir import join_path, create_directory
 from mixiu_pytest_helper.dir import get_project_path, copy_file, get_package_path
 
@@ -24,6 +26,9 @@ def run_tests(script_path: str = None):
     copy_file(src_file_path=config_template, dst_path=project_path)
     create_directory(dir_path=config_path)
     copy_file(src_file_path=logging_template, dst_path=config_path)
+    config = ProjectConfig(project_home=get_project_path()).get_object()
+    logging_plus = getattr(config, "logging")
+    logging.config.dictConfig(logging_plus)
     allure_dir = join_path([project_path, "allure-results"])
     pytest_args = ['--strict-markers', '--tb=short', '-v', '-ra', '-q', '-s', '--alluredir={}'.format(allure_dir)]
     if script_path is not None:
