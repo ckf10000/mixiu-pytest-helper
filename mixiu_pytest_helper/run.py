@@ -31,11 +31,13 @@ def run_tests(script_path: str = None, report_type: str = ALLURE_LABEL_MARK):
     logging_plus = getattr(config, "logging")
     logging.config.dictConfig(logging_plus)
     pytest_args = list()
+    pytest_plugins = list()
     if report_type == ALLURE_LABEL_MARK:
         allure_dir = join_path([project_path, "allure-results"])
         pytest_args.append('--alluredir={}'.format(allure_dir))
+        pytest_plugins.extend(['allure_pytest', 'allure_commons', 'pluggy'])
     if script_path is not None:
         if script_path == "__main__":
             script_path = sys.argv[0]
         pytest_args.append(script_path)
-    pytest.main(pytest_args)
+    pytest.main(args=pytest_args, plugins=pytest_plugins)
