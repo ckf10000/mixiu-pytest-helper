@@ -39,7 +39,7 @@ def run_tests(script_path: str = None, report_type: str = ALLURE_DESCRIPTION_MAR
             html_version >= '4.1.1' and metadata_version >= '3.1.1'):
         allure_dir = join_path([project_path, "allure-results"])
         pytest_plugins.extend(['allure_pytest', 'pytest_cov', 'pytest_html', 'pytest_metadata'])
-        pytest_args.extend(['--alluredir={}'.format(allure_dir), '--cov-report=html'])
+        pytest_args.extend(['--alluredir={}'.format(allure_dir), '--cov', '--cov-report=html'])
     if script_path is not None:
         if script_path == "__main__":
             script_path = sys.argv[0]
