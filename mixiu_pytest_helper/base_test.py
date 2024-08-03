@@ -46,23 +46,13 @@ class AppBeforeTest(AppBaseTest):
     @pytest.fixture(scope="class", autouse=True)
     def before_setup(cls, device_context: DeviceProxy):
         popui_api = UiDailyCheckInApi(device=device_context)
-        signup_button = popui_api.get_signup_button(
-            loop=20, peroid=0.5, is_ignore=True, is_log_output=True, is_log_traceback=True
-        )
+        signup_button = popui_api.get_signup_button()
         # 可能存在签到的弹窗
         if signup_button:
             logger.info("APP打开后，出现了【每日签到】弹窗")
-            popui_api.touch_signup_button(
-                loop=20, peroid=0.5, is_ignore=True, is_log_output=True, is_log_traceback=True
-            )
+            popui_api.touch_signup_button()
             logger.info("已签到")
-            popui_api.touch_signup_submit_button(
-                loop=20, peroid=0.5, is_ignore=True, is_log_output=True, is_log_traceback=True
-            )
-            popui_api.touch_live_leave_enter(
-                loop=20, peroid=0.5, is_ignore=True, is_log_output=True, is_log_traceback=True
-            )
-            popui_api.touch_close_room_button(
-                loop=20, peroid=0.5, is_ignore=True, is_log_output=True, is_log_traceback=True
-            )
+            popui_api.touch_signup_submit_button()
+            popui_api.touch_live_leave_enter()
+            popui_api.touch_close_room_button()
             logger.info("已退出直播间")

@@ -11,10 +11,15 @@
 """
 import json
 import subprocess
-from mixiu_pytest_helper.dir import delete_file
+from mixiu_pytest_helper.log import logger
+from mixiu_pytest_helper.dir import get_project_path, delete_file, init_dir
 
 
-def collect_marks(collect_dir: str):
+def collect_marks(collect_dir: str) -> list:
+    if collect_dir is None:
+        collect_dir = get_project_path()
+    init_dir(project_path=collect_dir)
+    collect_marks = list()
     collect_marks_file = 'collect_marks.json'
     # 使用 subprocess 运行 pytest
     result = subprocess.run(
@@ -27,9 +32,8 @@ def collect_marks(collect_dir: str):
 
     # 检查 pytest 是否成功执行
     if result.returncode != 0:
-        print("pytest 执行失败:")
-        print(result.stderr)
-        return
+        logger.error(result.stderr)
+        return collect_marks
 
     # 解析 pytest 输出的 JSON 报告
     with open(collect_marks_file, 'r') as f:
@@ -37,7 +41,14 @@ def collect_marks(collect_dir: str):
 
     delete_file(file_path=collect_marks_file)
 
-    # 提取标记信息
+    for x in report.get("collectors"):
+        print("x: {}".format(x))
+        for y in x.get("result"):
+            print("y: {}".format(y))
+            if y.get("type") == "Function":
+                print(y.get('nodeid'))
+
+        # 提取标记信息
     marks = {}
     for item in report['tests']:
         marks[item['nodeid']] = item.get('markers', [])

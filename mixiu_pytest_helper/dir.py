@@ -10,7 +10,8 @@
 # ---------------------------------------------------------------------------------------------------------
 """
 import os
-from airtest_helper.dir import get_project_path as get_exec_path, is_dir, join_path, is_exists
+from mixiu_pytest_helper.config import logging_config, pytest_config, coverage_config
+from airtest_helper.dir import get_project_path as get_exec_path, is_dir, join_path, is_exists, create_directory
 
 
 def find_configuration_path(current_path):
@@ -49,3 +50,16 @@ def delete_file(file_path: str):
             os.remove(file_path)
     except (Exception,):
         pass
+
+
+def init_dir(project_path: str = None) -> None:
+    if project_path is None:
+        project_path = get_project_path()
+    config_dir = join_path([project_path, "configuration"])
+    logging_template = str(join_path([config_dir, "logging.yaml"]))
+    pytest_template = str(join_path([project_path, "pytest.ini"]))
+    coverage_template = str(join_path([project_path, ".coveragerc"]))
+    create_directory(dir_path=config_dir)
+    save_file(content=logging_config, file_path=logging_template)
+    save_file(content=pytest_config, file_path=pytest_template)
+    save_file(content=coverage_config, file_path=coverage_template)

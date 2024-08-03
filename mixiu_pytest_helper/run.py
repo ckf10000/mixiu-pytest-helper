@@ -13,25 +13,18 @@ import sys
 import pytest
 import pytest_cov
 import logging.config
+from airtest_helper.dir import join_path
 from allure_pytest.utils import ALLURE_DESCRIPTION_MARK
 from distributed_logging.parse_yaml import ProjectConfig
 from pytest_html.__version import version as html_version
-from airtest_helper.dir import join_path, create_directory
-from mixiu_pytest_helper.dir import get_project_path, save_file
+from mixiu_pytest_helper.dir import init_dir, get_project_path
 from pytest_metadata.__version import version as metadata_version
-from mixiu_pytest_helper.config import logging_config, pytest_config, coverage_config
 
 
-def run_tests(script_path: str = None, report_type: str = ALLURE_DESCRIPTION_MARK):
-    project_path = get_project_path()
-    config_dir = join_path([project_path, "configuration"])
-    logging_template = str(join_path([config_dir, "logging.yaml"]))
-    pytest_template = str(join_path([project_path, "pytest.ini"]))
-    coverage_template = str(join_path([project_path, ".coveragerc"]))
-    create_directory(dir_path=config_dir)
-    save_file(content=logging_config, file_path=logging_template)
-    save_file(content=pytest_config, file_path=pytest_template)
-    save_file(content=coverage_config, file_path=coverage_template)
+def run_tests(project_path: str = None, report_type: str = ALLURE_DESCRIPTION_MARK):
+    if project_path is None:
+        project_path = get_project_path()
+    init_dir(project_path=project_path)
     config = ProjectConfig(project_home=get_project_path()).get_object()
     logging_plus = getattr(config, "logging")
     logging.config.dictConfig(logging_plus)
@@ -44,8 +37,8 @@ def run_tests(script_path: str = None, report_type: str = ALLURE_DESCRIPTION_MAR
         pytest_args.extend(
             ['--alluredir={}'.format(allure_dir), '--cov', '--cov-report=html', '--cov-config=.coveragerc']
         )
-    if script_path is not None:
-        if script_path == "__main__":
-            script_path = sys.argv[0]
-        pytest_args.append(script_path)
+    if project_path is not None:
+        if project_path == "__main__":
+            project_path = sys.argv[0]
+        pytest_args.append(project_path)
     pytest.main(args=pytest_args, plugins=pytest_plugins)
