@@ -26,6 +26,11 @@ markers =
     messages: mark a test related to the 'Message' section.
     square: mark a test related to the 'Square' section.
     home: mark a test related to the 'Home' section.
+    case_level: 用于标记测试用例的级别
+    case_desc: 用于标记测试用例的描述
+    case_name: 用于标记测试用例的名称
+    case_module: 用于标记测试用例所在的功能模块
+    case_id: 用于标记测试用例的唯一ID
 filterwarnings =
     error
     ignore::UserWarning
