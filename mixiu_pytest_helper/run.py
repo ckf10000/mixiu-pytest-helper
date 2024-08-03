@@ -19,7 +19,7 @@ from pytest_html.__version import version as html_version
 from airtest_helper.dir import join_path, create_directory
 from mixiu_pytest_helper.dir import get_project_path, save_file
 from pytest_metadata.__version import version as metadata_version
-from mixiu_pytest_helper.config import logging_config, pytest_config
+from mixiu_pytest_helper.config import logging_config, pytest_config, coverage_config
 
 
 def run_tests(script_path: str = None, report_type: str = ALLURE_DESCRIPTION_MARK):
@@ -27,9 +27,11 @@ def run_tests(script_path: str = None, report_type: str = ALLURE_DESCRIPTION_MAR
     config_dir = join_path([project_path, "configuration"])
     logging_template = str(join_path([config_dir, "logging.yaml"]))
     pytest_template = str(join_path([project_path, "pytest.ini"]))
+    coverage_template = str(join_path([project_path, ".coveragerc"]))
     create_directory(dir_path=config_dir)
     save_file(content=logging_config, file_path=logging_template)
     save_file(content=pytest_config, file_path=pytest_template)
+    save_file(content=coverage_config, file_path=coverage_template)
     config = ProjectConfig(project_home=get_project_path()).get_object()
     logging_plus = getattr(config, "logging")
     logging.config.dictConfig(logging_plus)
@@ -39,7 +41,9 @@ def run_tests(script_path: str = None, report_type: str = ALLURE_DESCRIPTION_MAR
             html_version >= '4.1.1' and metadata_version >= '3.1.1'):
         allure_dir = join_path([project_path, "allure-results"])
         pytest_plugins.extend(['allure_pytest', 'pytest_cov', 'pytest_html', 'pytest_metadata'])
-        pytest_args.extend(['--alluredir={}'.format(allure_dir), '--cov', '--cov-report=html'])
+        pytest_args.extend(
+            ['--alluredir={}'.format(allure_dir), '--cov', '--cov-report=html', '--cov-config=.coveragerc']
+        )
     if script_path is not None:
         if script_path == "__main__":
             script_path = sys.argv[0]

@@ -39,6 +39,25 @@ filterwarnings =
     ignore:.*_SixMetaPathImporter.find_spec.*:ImportWarning
 """
 
+coverage_config = """[run]
+# 排除特定模块或代码
+omit =
+    */mixiu_pytest_helper/execute_all.py
+    */__init__.py
+    *if __name__ == "__main__":*
+    *from mixiu_pytest_helper.run import run_tests*
+    *run_tests(script_path=__name__)*
+
+[report]
+# 在报告中隐藏某些行或文件
+exclude_lines =
+    if __name__ == "__main__":
+    from mixiu_pytest_helper.run import run_tests
+    run_tests(script_path=__name__)
+    pragma: no cover
+    def __str__
+"""
+
 logging_config = r"""development:
   version: 1
   disable_existing_loggers: false
