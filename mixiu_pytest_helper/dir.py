@@ -40,3 +40,12 @@ def save_file(content: str, file_path: str) -> None:
         if is_dir(os.path.dirname(file_path)) is True:
             with open(file_path, 'w', encoding="utf-8") as f:
                 f.write(content)
+
+
+def delete_file(file_path: str):
+    """删除指定路径的文件。"""
+    try:
+        if is_exists(file_name=file_path) is True:
+            os.remove(file_path)
+    except (Exception,):
+        pass

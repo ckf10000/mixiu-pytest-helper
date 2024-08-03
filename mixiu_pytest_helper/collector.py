@@ -9,44 +9,39 @@
 # Copyright ©2011-2024. Hunan xxxxxxx Company limited. All rights reserved.
 # ---------------------------------------------------------------------------------------------------------
 """
-import os
-import sys
-from _pytest.config import Config
-from _pytest.config import _prepareconfig
+import json
+import subprocess
+from mixiu_pytest_helper.dir import delete_file
 
 
 def collect_marks(collect_dir: str):
-    # 将测试目录添加到 sys.path
-    sys.path.insert(0, os.path.abspath(collect_dir))
+    collect_marks_file = 'collect_marks.json'
+    # 使用 subprocess 运行 pytest
+    result = subprocess.run(
+        ['pytest', '--disable-warnings', '--collect-only', '--json-report',
+         '--json-report-file={}'.format(collect_marks_file),
+         collect_dir],
+        capture_output=True,
+        text=True
+    )
 
-    # 创建 pytest 配置对象
-    def create_config(args=None) -> Config:
-        """创建 pytest 配置对象"""
-        config = _prepareconfig(args or [])
-        return config
+    # 检查 pytest 是否成功执行
+    if result.returncode != 0:
+        print("pytest 执行失败:")
+        print(result.stderr)
+        return
 
-    # 运行 pytest 并获取测试项
-    def collect_test_items(config: Config):
-        """从 pytest 配置中收集测试项"""
-        items = []
-        for item in config.hook.pytest_collection_modifyitems(items):
-            items.extend(item)
-        return items
+    # 解析 pytest 输出的 JSON 报告
+    with open(collect_marks_file, 'r') as f:
+        report = json.load(f)
 
-    # 打印测试函数的标记信息
-    def print_marks():
-        # 创建配置对象
-        config = create_config(['--disable-warnings'])
+    delete_file(file_path=collect_marks_file)
 
-        # 收集测试项
-        items = collect_test_items(config)
+    # 提取标记信息
+    marks = {}
+    for item in report['tests']:
+        marks[item['nodeid']] = item.get('markers', [])
 
-        # 打印标记信息
-        print("Collected Markers:")
-        for item in items:
-            if hasattr(item, 'keywords'):
-                print(f"Test: {item.nodeid}")
-                for marker in item.keywords:
-                    print(f"  - Marker: {marker} -> {item.keywords[marker]}")
-
-    print_marks()
+    # 打印标记信息
+    for nodeid, marker_list in marks.items():
+        print(f"{nodeid}: {marker_list}")
