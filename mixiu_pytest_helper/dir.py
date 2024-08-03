@@ -10,8 +10,7 @@
 # ---------------------------------------------------------------------------------------------------------
 """
 import os
-import shutil
-from airtest_helper.dir import get_project_path as get_exec_path, is_dir, join_path, is_file, is_exists
+from airtest_helper.dir import get_project_path as get_exec_path, is_dir, join_path, is_exists
 
 
 def find_configuration_path(current_path):
@@ -37,6 +36,7 @@ def get_project_path():
 
 
 def save_file(content: str, file_path: str) -> None:
-    if is_dir(os.path.dirname(file_path)) is True:
-        with open(file_path, 'w', encoding="utf-8") as f:
-            f.write(content)
+    if is_exists(file_name=file_path) is False:
+        if is_dir(os.path.dirname(file_path)) is True:
+            with open(file_path, 'w', encoding="utf-8") as f:
+                f.write(content)

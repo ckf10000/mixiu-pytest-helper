@@ -11,15 +11,18 @@
 """
 import sys
 import pytest
+import pytest_cov
 import logging.config
-from allure_pytest.utils import ALLURE_LABEL_MARK
+from allure_pytest.utils import ALLURE_DESCRIPTION_MARK
 from distributed_logging.parse_yaml import ProjectConfig
+from pytest_html.__version import version as html_version
 from airtest_helper.dir import join_path, create_directory
 from mixiu_pytest_helper.dir import get_project_path, save_file
+from pytest_metadata.__version import version as metadata_version
 from mixiu_pytest_helper.config import logging_config, pytest_config
 
 
-def run_tests(script_path: str = None, report_type: str = ALLURE_LABEL_MARK):
+def run_tests(script_path: str = None, report_type: str = ALLURE_DESCRIPTION_MARK):
     project_path = get_project_path()
     config_dir = join_path([project_path, "configuration"])
     logging_template = str(join_path([config_dir, "logging.yaml"]))
@@ -32,10 +35,11 @@ def run_tests(script_path: str = None, report_type: str = ALLURE_LABEL_MARK):
     logging.config.dictConfig(logging_plus)
     pytest_args = list()
     pytest_plugins = list()
-    if report_type == ALLURE_LABEL_MARK:
+    if (report_type == ALLURE_DESCRIPTION_MARK and pytest_cov.__version__ >= '5.0.0' and
+            html_version >= '4.1.1' and metadata_version >= '3.1.1'):
         allure_dir = join_path([project_path, "allure-results"])
-        pytest_args.append('--alluredir={}'.format(allure_dir))
-        pytest_plugins.extend(['allure_pytest', 'allure_commons', 'pluggy'])
+        pytest_plugins.extend(['allure_pytest', 'pytest_cov', 'pytest_html', 'pytest_metadata'])
+        pytest_args.extend(['--alluredir={}'.format(allure_dir), '--cov', '--cov-report=html'])
     if script_path is not None:
         if script_path == "__main__":
             script_path = sys.argv[0]
