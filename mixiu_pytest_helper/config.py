@@ -46,14 +46,14 @@ omit =
     */__init__.py
     *if __name__ == "__main__":*
     *from mixiu_pytest_helper.run import run_tests*
-    *run_tests(script_path=__name__)*
+    *run_tests()*
 
 [report]
 # 在报告中隐藏某些行或文件
 exclude_lines =
     if __name__ == "__main__":
     from mixiu_pytest_helper.run import run_tests
-    run_tests(script_path=__name__)
+    run_tests()
     pragma: no cover
     def __str__
 """
