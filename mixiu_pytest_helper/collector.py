@@ -23,7 +23,7 @@ def collect_marks(collect_dir: str) -> list:
     collect_marks_file = 'collect_marks.json'
     # 使用 subprocess 运行 pytest
     result = subprocess.run(
-        ['pytest', '--disable-warnings', '--collect-only', '--json-report',
+        ['pytest', '--disable-warnings', '--collect-only', '--verbose', '--json-report',
          '--json-report-file={}'.format(collect_marks_file),
          collect_dir],
         capture_output=True,
@@ -47,12 +47,3 @@ def collect_marks(collect_dir: str) -> list:
             print("y: {}".format(y))
             if y.get("type") == "Function":
                 print(y.get('nodeid'))
-
-        # 提取标记信息
-    marks = {}
-    for item in report['tests']:
-        marks[item['nodeid']] = item.get('markers', [])
-
-    # 打印标记信息
-    for nodeid, marker_list in marks.items():
-        print(f"{nodeid}: {marker_list}")
