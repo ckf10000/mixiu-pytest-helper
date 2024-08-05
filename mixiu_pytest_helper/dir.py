@@ -52,9 +52,7 @@ def delete_file(file_path: str):
         pass
 
 
-def init_dir(project_path: str = None) -> None:
-    if project_path is None:
-        project_path = get_project_path()
+def init_dir(project_path: str) -> None:
     config_dir = join_path([project_path, "configuration"])
     logging_template = str(join_path([config_dir, "logging.yaml"]))
     pytest_template = str(join_path([project_path, "pytest.ini"]))

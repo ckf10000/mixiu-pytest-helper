@@ -9,6 +9,7 @@
 # Copyright ©2011-2024. Hunan xxxxxxx Company limited. All rights reserved.
 # ---------------------------------------------------------------------------------------------------------
 """
+import os
 import sys
 import pytest
 import pytest_cov
@@ -22,9 +23,7 @@ from pytest_metadata.__version import version as metadata_version
 
 
 def run_tests(project_path: str = None, report_type: str = ALLURE_DESCRIPTION_MARK):
-    if project_path is None:
-        project_path = get_project_path()
-    init_dir(project_path=project_path)
+    init_dir(project_path=os.environ.get("PROJECT_PATH"))
     config = ProjectConfig(project_home=get_project_path()).get_object()
     logging_plus = getattr(config, "logging")
     logging.config.dictConfig(logging_plus)
