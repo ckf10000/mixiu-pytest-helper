@@ -24,12 +24,6 @@ def get_phone_device_lock_key(device_ip: str, port: int = None) -> str:
     return string
 
 
-def get_redis_lock_api() -> RedisClientManager:
-    redis_client = RedisLockClientManager()
-    redis_api = RedisClientManager(redis=redis_client)
-    return redis_api
-
-
 def get_idle_device(redis_api: RedisClientManager) -> DeviceProxy or None:
     devices = MiddlewareRepository.get_devices()
     for device_info in devices:
@@ -50,19 +44,27 @@ def get_idle_device(redis_api: RedisClientManager) -> DeviceProxy or None:
 
 
 @pytest.fixture(scope="session")
-def device_context() -> tuple:
-    redis_api = get_redis_lock_api()
-    device = get_idle_device(redis_api=redis_api)
-    yield device
-    if device:
-        lock_key = get_phone_device_lock_key(device_ip=device.device_id)
-        redis_api.set_redis_data(key=lock_key, value="idle", ex=86400)
-    redis_api.redis.close()
-
-
-@pytest.fixture(scope="session")
-def redis_context() -> RedisClientManager:
+def cache_context() -> RedisClientManager:
     redis_client = RedisCacheClientManager()
     redis_api = RedisClientManager(redis=redis_client)
     yield redis_api
     redis_api.redis.close()
+
+
+@pytest.fixture(scope="session")
+def lock_context() -> RedisClientManager:
+    redis_client = RedisLockClientManager()
+    redis_api = RedisClientManager(redis=redis_client)
+    yield redis_api
+    redis_api.redis.close()
+
+
+"""
+@pytest.fixture(scope="session")
+def device_context(lock_context: RedisClientManager) -> DeviceProxy:
+    device = get_idle_device(redis_api=lock_context)
+    yield device
+    if device:
+        lock_key = get_phone_device_lock_key(device_ip=device.device_id)
+        lock_context.set_redis_data(key=lock_key, value="idle", ex=86400)
+"""

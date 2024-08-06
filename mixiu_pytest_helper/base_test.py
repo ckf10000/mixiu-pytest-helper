@@ -13,14 +13,30 @@ import pytest
 from mixiu_pytest_helper.annotation import logger
 from airtest_helper.core import DeviceProxy, DeviceApi
 from mixiu_pytest_helper.repository import MiddlewareRepository
+from mixiu_pytest_helper.infrastructure import RedisClientManager
 from mixiu_app_helper.api.page.popup.gift import UiDailyCheckInApi
+from mixiu_pytest_helper.conftest import get_idle_device, get_phone_device_lock_key
 
 
-class BaseTest(object):
+class SetupClass(object):
     pass
 
 
-class AppBaseTest(BaseTest):
+class DeviceSetupClass(SetupClass):
+    device: DeviceProxy = None
+
+    @classmethod
+    @pytest.fixture(scope="class", autouse=True)
+    def device_setup(cls, lock_context: RedisClientManager):
+        # 此处的 setup 只会在每个测试类开始时调用一次
+        cls.device = get_idle_device(redis_api=lock_context)
+        yield
+        if cls.device:
+            lock_key = get_phone_device_lock_key(device_ip=cls.device.device_id)
+            lock_context.set_redis_data(key=lock_key, value="idle", ex=86400)
+
+
+class AppSetupClass(DeviceSetupClass):
     test_data: dict = dict()
     app_name: str = 'null'
     config_namespace = "test-data-app"
@@ -29,7 +45,7 @@ class AppBaseTest(BaseTest):
 
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
-    def base_setup(cls, request: pytest.FixtureRequest, device_context: DeviceProxy):
+    def app_setup(cls, request: pytest.FixtureRequest, device_context: DeviceProxy):
         test_data = MiddlewareRepository.get_test_datas(namespace=cls.config_namespace)
         device_api = DeviceApi(device=device_context)
         request.cls.test_data = test_data
@@ -40,7 +56,7 @@ class AppBaseTest(BaseTest):
         device_api.restart_app(app_name=request.cls.app_name)
 
 
-class AppBeforeTest(AppBaseTest):
+class BeforeAppTest(AppSetupClass):
 
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
