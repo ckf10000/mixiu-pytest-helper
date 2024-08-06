@@ -13,7 +13,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='mixiu-pytest-helper',
-    version='0.3.9',
+    version='0.4.0',
     description='This is my mixiu pytest helper package',
     long_description='This is my mixiu pytest helper package',
     author='ckf10000',
@@ -29,7 +29,7 @@ setup(
         'mixiu-app-helper>=0.1.6',
         'pytest-json-report>=1.5.0',
         'distributed-logging>=0.0.3',
-        'python-apollo-proxy>=0.1.7',
+        'python-apollo-proxy>=0.1.8',
         'middleware-help-python>=0.1.3'
     ],
     classifiers=[
