@@ -10,11 +10,11 @@
 # ---------------------------------------------------------------------------------------------------------
 """
 import sys
-import pytest
+# import pytest
 from airtest_helper.core import DeviceProxy
 from mixiu_pytest_helper.annotation import logger
 from mixiu_pytest_helper.repository import MiddlewareRepository
-from mixiu_pytest_helper.infrastructure import RedisCacheClientManager, RedisLockClientManager, RedisClientManager
+from mixiu_pytest_helper.infrastructure import RedisClientManager
 
 
 def get_phone_device_lock_key(device_ip: str, port: int = None) -> str:
@@ -43,6 +43,7 @@ def get_idle_device(redis_api: RedisClientManager) -> DeviceProxy or None:
     return None
 
 
+"""
 @pytest.fixture(scope="session")
 def cache_context() -> RedisClientManager:
     redis_client = RedisCacheClientManager()
@@ -59,7 +60,6 @@ def lock_context() -> RedisClientManager:
     redis_api.redis.close()
 
 
-"""
 @pytest.fixture(scope="session")
 def device_context(lock_context: RedisClientManager) -> DeviceProxy:
     device = get_idle_device(redis_api=lock_context)
