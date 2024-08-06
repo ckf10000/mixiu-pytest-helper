@@ -17,8 +17,8 @@ from mixiu_pytest_helper.infrastructure import apollo
 class MiddlewareRepository(object):
 
     @classmethod
-    def get_devices(cls) -> list:
-        return apollo.get_value(key="device_ids") or list()
+    def get_devices(cls, namespace: str = "application") -> list:
+        return apollo.get_value(key="device_ids", namespace=namespace) or list()
 
     @classmethod
     def get_test_data(cls, key: str, namespace: str) -> t.Any:
