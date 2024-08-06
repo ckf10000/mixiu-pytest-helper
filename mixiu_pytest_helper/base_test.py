@@ -45,23 +45,22 @@ class AppSetupClass(DeviceSetupClass):
 
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
-    def app_setup(cls, request: pytest.FixtureRequest, device_context: DeviceProxy):
-        test_data = MiddlewareRepository.get_test_datas(namespace=cls.config_namespace)
-        device_api = DeviceApi(device=device_context)
-        request.cls.test_data = test_data
-        request.cls.app_name = test_data.get('app_name')
+    def app_setup(cls):
+        cls.test_data = MiddlewareRepository.get_test_datas(namespace=cls.config_namespace)
+        device_api = DeviceApi(device=cls.device)
+        cls.app_name = cls.test_data.get('app_name')
         # logger.info("开始唤醒设备")
         # device_api.wake()  真机的可能处于息屏状态，因此需要唤醒，模拟机的话，可以忽略此步骤
-        logger.info("开始启动APP: {}".format(request.cls.app_name))
-        device_api.restart_app(app_name=request.cls.app_name)
+        logger.info("开始启动APP: {}".format(cls.app_name))
+        device_api.restart_app(app_name=cls.app_name)
 
 
 class BeforeAppTest(AppSetupClass):
 
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
-    def before_setup(cls, device_context: DeviceProxy):
-        popui_api = UiDailyCheckInApi(device=device_context)
+    def before_test_setup(cls):
+        popui_api = UiDailyCheckInApi(device=cls.device)
         signup_button = popui_api.get_signup_button()
         # 可能存在签到的弹窗
         if signup_button:
