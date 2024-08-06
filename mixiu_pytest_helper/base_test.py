@@ -32,8 +32,8 @@ class DataSetupClass(SetupClass):
 
     @classmethod
     @pytest.fixture(scope="class")
-    def data_setup(cls, init_setup: pytest.Function):
-        cls.test_data = MiddlewareRepository.get_test_datas(namespace=cls.config_namespace)
+    def data_setup(cls, request: pytest.FixtureRequest, init_setup: pytest.Function):
+        request.cls.test_data = MiddlewareRepository.get_test_datas(namespace=cls.config_namespace)
         logger.info("step1: 获取apollo配置的测试【预期数据】成功")
 
 
