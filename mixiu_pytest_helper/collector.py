@@ -10,9 +10,11 @@
 # ---------------------------------------------------------------------------------------------------------
 """
 import json
+import importlib
 import subprocess
-from mixiu_pytest_helper.log import logger
+
 from mixiu_pytest_helper.dir import get_project_path, delete_file, init_dir
+from mixiu_pytest_helper.log import logger
 
 
 def collect_marks(collect_dir: str) -> list:
@@ -42,8 +44,42 @@ def collect_marks(collect_dir: str) -> list:
     delete_file(file_path=collect_marks_file)
 
     for x in report.get("collectors"):
-        print("x: {}".format(x))
         for y in x.get("result"):
-            print("y: {}".format(y))
             if y.get("type") == "Function":
-                print(y.get('nodeid'))
+                node_id = y.get('nodeid')
+                marks = get_decorators(nodeid=node_id)
+                if marks:
+                    node_id_slice = node_id.split("::")
+                    module_name = node_id_slice[0][:-3].replace('/', '.')
+                    # module_name = importlib.import_module(module_path.replace('/', '.'))
+                    class_name = node_id_slice[1] if len(node_id_slice) == 3 else None
+                    function_name = node_id_slice[-1]
+                    marks.update(module_name=module_name, class_name=class_name, function_name=function_name)
+                    collect_marks.append(marks)
+    from pprint import pprint
+    pprint(collect_marks)
+    return collect_marks
+
+
+def get_decorators(nodeid: str) -> dict:
+    """获取函数的所有装饰器"""
+    marks = dict()
+    # 分解字符串
+    parts = nodeid.split('::')
+    # 导入模块
+    module = importlib.import_module(parts[0][:-3].replace('/', '.'))
+    if len(parts) == 3:
+        # 获取类
+        cls = getattr(module, parts[1], None)
+        func = getattr(cls, parts[2], None) if cls is not None else None
+    else:
+        cls = None
+        func = getattr(module, parts[1], None)
+    if func is not None and callable(func):
+        if hasattr(func, 'pytestmark'):
+            # 获取当前函数的pytestmark属性（如果有）
+            pytestmark = getattr(func, 'pytestmark') or list()
+            for mark in pytestmark:
+                args = getattr(mark, 'args')
+                marks[getattr(mark, 'name')] = args[0] if args and isinstance(args, tuple) else None
+    return marks
