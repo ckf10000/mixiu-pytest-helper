@@ -56,8 +56,6 @@ def collect_marks(collect_dir: str) -> list:
                     function_name = node_id_slice[-1]
                     marks.update(module_name=module_name, class_name=class_name, function_name=function_name)
                     collect_marks.append(marks)
-    from pprint import pprint
-    pprint(collect_marks)
     return collect_marks
 
 
