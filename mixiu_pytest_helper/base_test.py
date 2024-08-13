@@ -108,6 +108,7 @@ class HttpApiSetupClass(ApiDataSetupClass):
     def http_api_setup(cls, request: pytest.FixtureRequest, data_setup: pytest.Function):
         request.cls.domain = cls.test_data.get("api_domain")
         request.cls.protocol = cls.test_data.get("api_protocol")
+        logger.info("step2: 启动HTTP客户端")
 
 
 class BeforeApiTest(HttpApiSetupClass):
@@ -117,6 +118,6 @@ class BeforeApiTest(HttpApiSetupClass):
     def before_test_setup(cls, request: pytest.FixtureRequest, http_api_setup: pytest.Function):
         request.cls.api_uuid = MiddlewareRepository.get_api_user_uuid()
         request.cls.api_token = MiddlewareRepository.get_login_user_token(uuid=request.cls.api_uuid)
-        logger.info("step2: 获取cache中的待测试用户uuid: <{}>，token: <{}>".format(
+        logger.info("step3: 获取cache中的待测试用户uuid: <{}>，token: <{}>".format(
             request.cls.api_uuid, request.cls.api_token
         ))
