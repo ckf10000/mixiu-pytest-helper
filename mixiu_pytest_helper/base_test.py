@@ -114,5 +114,6 @@ class BeforeApiTest(HttpApiSetupClass):
 
     @classmethod
     @pytest.fixture(scope="class")
-    def before_test_setup(cls, http_api_setup: pytest.Function):
-        pass
+    def before_test_setup(cls, request: pytest.FixtureRequest, http_api_setup: pytest.Function):
+        request.cls.api_token = MiddlewareRepository.get_login_user_token()
+        logger.info("step2: 获取cache中的待测试用户token: <{}>".format(request.cls.api_token))
