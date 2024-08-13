@@ -177,4 +177,11 @@ logging_config = r"""development:
         - test.json
       level: DEBUG
       propagate: false
+    requests:
+      handlers:
+        - stream
+        - test.log
+        - test.json
+      level: DEBUG
+      propagate: false
 """
