@@ -23,8 +23,9 @@ class MiddlewareRepository(object):
         return apollo.get_value(key="device_ids", namespace=namespace) or list()
 
     @classmethod
-    def get_api_user_uuid(cls, apollo: ApolloClient = apollo, namespace: str = "test-data-api") -> str:
-        return apollo.get_value(key="login_user_uuid", namespace=namespace) or ""
+    def get_api_user_uuid(cls, apollo: ApolloClient = apollo, namespace: str = "test-data-api") -> int:
+        user_uuid = apollo.get_value(key="user_uuid", namespace=namespace)
+        return int(user_uuid) if isinstance(user_uuid, str) and user_uuid.isdigit() else 0
 
     @classmethod
     def get_test_data(cls, key: str, namespace: str, apollo: ApolloClient = apollo) -> t.Any:
@@ -36,5 +37,5 @@ class MiddlewareRepository(object):
         return test_datas if isinstance(test_datas, dict) else dict()
 
     @classmethod
-    def get_login_user_token(cls, uuid: str, redis: RedisClientManager = auth_client) -> str:
+    def get_login_user_token(cls, uuid: int, redis: RedisClientManager = auth_client) -> str:
         return redis.get_redis_data(key="POPO:USER:TOKEN:CACHE::{}".format(uuid))
