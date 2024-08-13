@@ -11,8 +11,8 @@
 """
 import pytest
 from mixiu_pytest_helper.annotation import logger
+from mixiu_pytest_helper.context import lock_client
 from airtest_helper.core import DeviceProxy, DeviceApi
-from mixiu_pytest_helper.infrastructure import lock_client
 from mixiu_pytest_helper.repository import MiddlewareRepository
 from mixiu_app_helper.api.page.popup.gift import UiDailyCheckInApi
 from mixiu_pytest_helper.conftest import get_idle_device, get_phone_device_lock_key
@@ -26,7 +26,7 @@ class SetupClass(object):
         logger.info("开始初始化自动化测试环境...")
 
 
-class DataSetupClass(SetupClass):
+class UiDataSetupClass(SetupClass):
     test_data: dict = dict()
     config_namespace = "test-data-app"
 
@@ -34,21 +34,10 @@ class DataSetupClass(SetupClass):
     @pytest.fixture(scope="class")
     def data_setup(cls, request: pytest.FixtureRequest, init_setup: pytest.Function):
         request.cls.test_data = MiddlewareRepository.get_test_datas(namespace=cls.config_namespace)
-        logger.info("step1: 获取apollo配置的测试【预期数据】成功")
+        logger.info("step1: 获取apollo配置的UI测试【预期数据】成功")
 
 
-class HttpApiSetupClass(DataSetupClass):
-    domain: str = None
-    protocol: str = None
-
-    @classmethod
-    @pytest.fixture(scope="class")
-    def http_api_setup(cls, request: pytest.FixtureRequest, data_setup: pytest.Function):
-        request.cls.domain = cls.test_data.get("api_domain")
-        request.cls.protocol = cls.test_data.get("api_protocol")
-
-
-class DeviceSetupClass(DataSetupClass):
+class DeviceSetupClass(UiDataSetupClass):
     device: DeviceProxy = None
 
     @classmethod
@@ -97,6 +86,28 @@ class BeforeAppTest(AppSetupClass):
             popui_api.touch_live_leave_enter()
             popui_api.touch_close_room_button()
             logger.info("step4.2*: 已退出直播间")
+
+
+class ApiDataSetupClass(SetupClass):
+    test_data: dict = dict()
+    config_namespace = "test-data-api"
+
+    @classmethod
+    @pytest.fixture(scope="class")
+    def data_setup(cls, request: pytest.FixtureRequest, init_setup: pytest.Function):
+        request.cls.test_data = MiddlewareRepository.get_test_datas(namespace=cls.config_namespace)
+        logger.info("step1: 获取apollo配置的API测试【预期数据】成功")
+
+
+class HttpApiSetupClass(ApiDataSetupClass):
+    domain: str = None
+    protocol: str = None
+
+    @classmethod
+    @pytest.fixture(scope="class")
+    def http_api_setup(cls, request: pytest.FixtureRequest, data_setup: pytest.Function):
+        request.cls.domain = cls.test_data.get("api_domain")
+        request.cls.protocol = cls.test_data.get("api_protocol")
 
 
 class BeforeApiTest(HttpApiSetupClass):

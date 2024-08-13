@@ -14,7 +14,7 @@ from apollo_proxy.client import ApolloClient
 from mixiu_pytest_helper.config import apollo_params_map
 from middleware_helper.redis import get_redis_connection, Redis
 
-__all__ = ['apollo', 'RedisClientManager', 'cache_client', 'lock_client']
+__all__ = ['apollo', 'RedisClientManager', 'cache_client', 'lock_client', 'auth_client']
 
 
 class ApolloClientManager:
@@ -52,5 +52,11 @@ class RedisCacheClientManager:
         return get_redis_connection(**apollo.get_value("redis.cache"))
 
 
+class RedisAuthClientManager:
+    def __new__(cls, *args, **kwargs):
+        return get_redis_connection(**apollo.get_value("redis.auth"))
+
+
+auth_client = RedisClientManager(redis=RedisAuthClientManager())
 lock_client = RedisClientManager(redis=RedisLockClientManager())
 cache_client = RedisClientManager(redis=RedisCacheClientManager())

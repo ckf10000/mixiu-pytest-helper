@@ -21,6 +21,10 @@ class MiddlewareRepository(object):
         return apollo.get_value(key="device_ids", namespace=namespace) or list()
 
     @classmethod
+    def get_api_user_uuid(cls, namespace: str = "test-data-api") -> str:
+        return apollo.get_value(key="login_user_uuid", namespace=namespace) or ""
+
+    @classmethod
     def get_test_data(cls, key: str, namespace: str) -> t.Any:
         return apollo.get_value(key=key, namespace=namespace)
 
