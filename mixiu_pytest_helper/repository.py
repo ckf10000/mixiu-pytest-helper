@@ -36,10 +36,5 @@ class MiddlewareRepository(object):
         return test_datas if isinstance(test_datas, dict) else dict()
 
     @classmethod
-    def get_login_user_token(cls, apollo: ApolloClient = apollo, namespace: str = "test-data-api",
-                             redis: RedisClientManager = auth_client) -> str:
-        api_user_uuid = cls.get_api_user_uuid(apollo=apollo, namespace=namespace)
-        if api_user_uuid:
-            return redis.get_redis_data(key="POPO:USER:TOKEN:CACHE::{}".format(api_user_uuid))
-        else:
-            return ""
+    def get_login_user_token(cls, uuid: str, redis: RedisClientManager = auth_client) -> str:
+        return redis.get_redis_data(key="POPO:USER:TOKEN:CACHE::{}".format(uuid))
