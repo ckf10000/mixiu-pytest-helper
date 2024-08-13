@@ -73,7 +73,7 @@ class AppSetupClass(DeviceSetupClass):
 class BeforeAppTest(AppSetupClass):
 
     @classmethod
-    @pytest.fixture(scope="class")
+    @pytest.fixture(scope="class", autouse=True)
     def before_test_setup(cls, app_setup: pytest.Function):
         popui_api = UiDailyCheckInApi(device=cls.device)
         signup_button = popui_api.get_signup_button()
@@ -113,7 +113,7 @@ class HttpApiSetupClass(ApiDataSetupClass):
 class BeforeApiTest(HttpApiSetupClass):
 
     @classmethod
-    @pytest.fixture(scope="class")
+    @pytest.fixture(scope="class", autouse=True)
     def before_test_setup(cls, request: pytest.FixtureRequest, http_api_setup: pytest.Function):
         request.cls.api_uuid = MiddlewareRepository.get_api_user_uuid()
         request.cls.api_token = MiddlewareRepository.get_login_user_token(uuid=request.cls.api_uuid)
