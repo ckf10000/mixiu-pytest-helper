@@ -37,6 +37,17 @@ class DataSetupClass(SetupClass):
         logger.info("step1: 获取apollo配置的测试【预期数据】成功")
 
 
+class HttpApiSetupClass(DataSetupClass):
+    domain: str = None
+    protocol: str = None
+
+    @classmethod
+    @pytest.fixture(scope="class")
+    def http_api_setup(cls, request: pytest.FixtureRequest, data_setup: pytest.Function):
+        request.cls.domain = cls.test_data.get("api_domain")
+        request.cls.protocol = cls.test_data.get("api_protocol")
+
+
 class DeviceSetupClass(DataSetupClass):
     device: DeviceProxy = None
 
@@ -73,7 +84,7 @@ class AppSetupClass(DeviceSetupClass):
 class BeforeAppTest(AppSetupClass):
 
     @classmethod
-    @pytest.fixture(scope="class", autouse=True)
+    @pytest.fixture(scope="class")
     def before_test_setup(cls, app_setup: pytest.Function):
         popui_api = UiDailyCheckInApi(device=cls.device)
         signup_button = popui_api.get_signup_button()
@@ -88,5 +99,9 @@ class BeforeAppTest(AppSetupClass):
             logger.info("step4.2*: 已退出直播间")
 
 
-class BeforeApiTest(DataSetupClass):
-    pass
+class BeforeApiTest(HttpApiSetupClass):
+
+    @classmethod
+    @pytest.fixture(scope="class")
+    def before_test_setup(cls, http_api_setup: pytest.Function):
+        pass
