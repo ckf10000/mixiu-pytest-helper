@@ -78,6 +78,7 @@ def get_decorators(nodeid: str) -> dict:
             # 获取当前函数的pytestmark属性（如果有）
             pytestmark = getattr(func, 'pytestmark') or list()
             for mark in pytestmark:
-                args = getattr(mark, 'args')
-                marks[getattr(mark, 'name')] = args[0] if args and isinstance(args, tuple) else None
+                if getattr(mark, 'name', '').startswith("case"):
+                    args = getattr(mark, 'args')
+                    marks[getattr(mark, 'name')] = args[0] if args and isinstance(args, tuple) else None
     return marks
