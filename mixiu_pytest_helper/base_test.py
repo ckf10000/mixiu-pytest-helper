@@ -86,3 +86,7 @@ class BeforeAppTest(AppSetupClass):
             popui_api.touch_live_leave_enter()
             popui_api.touch_close_room_button()
             logger.info("step4.2*: 已退出直播间")
+
+
+class BeforeApiTest(DataSetupClass):
+    pass
