@@ -11,7 +11,7 @@
 """
 import typing as t
 
-from mixiu_pytest_helper.infrastructure import apollo
+from mixiu_pytest_helper.context import apollo
 
 
 class MiddlewareRepository(object):

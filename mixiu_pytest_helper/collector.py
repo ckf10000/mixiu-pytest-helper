@@ -71,7 +71,7 @@ def get_decorators(nodeid: str) -> dict:
         cls = getattr(module, parts[1], None)
         func = getattr(cls, parts[2], None) if cls is not None else None
     else:
-        cls = None
+        # cls = None
         func = getattr(module, parts[1], None)
     if func is not None and callable(func):
         if hasattr(func, 'pytestmark'):

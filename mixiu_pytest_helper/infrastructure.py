@@ -10,11 +10,11 @@
 # ---------------------------------------------------------------------------------------------------------
 """
 import typing as t
+from middleware_helper.redis import Redis
 from apollo_proxy.client import ApolloClient
 from mixiu_pytest_helper.config import apollo_params_map
-from middleware_helper.redis import get_redis_connection, Redis
 
-__all__ = ['apollo', 'RedisClientManager', 'cache_client', 'lock_client', 'auth_client']
+__all__ = ['ApolloClientManager', 'RedisClientManager']
 
 
 class ApolloClientManager:
@@ -27,9 +27,6 @@ class ApolloClientManager:
         )
 
 
-apollo = ApolloClientManager()
-
-
 class RedisClientManager(object):
 
     def __init__(self, redis: Redis):
@@ -40,23 +37,3 @@ class RedisClientManager(object):
 
     def set_redis_data(self, key: str, value: t.Any, ex: int = 3600) -> t.Any:
         return self.redis.set(name=key, value=value, ex=ex)
-
-
-class RedisLockClientManager:
-    def __new__(cls, *args, **kwargs):
-        return get_redis_connection(**apollo.get_value("redis.lock"))
-
-
-class RedisCacheClientManager:
-    def __new__(cls, *args, **kwargs):
-        return get_redis_connection(**apollo.get_value("redis.cache"))
-
-
-class RedisAuthClientManager:
-    def __new__(cls, *args, **kwargs):
-        return get_redis_connection(**apollo.get_value("redis.auth"))
-
-
-auth_client = RedisClientManager(redis=RedisAuthClientManager())
-lock_client = RedisClientManager(redis=RedisLockClientManager())
-cache_client = RedisClientManager(redis=RedisCacheClientManager())
