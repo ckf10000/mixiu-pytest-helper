@@ -70,7 +70,7 @@ class AppSetupClass(DeviceSetupClass):
         cls.device_api.restart_app(app_name=cls.app_name)
 
 
-class BeforeAppTest(AppSetupClass):
+class BeforeUiTest(AppSetupClass):
 
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
