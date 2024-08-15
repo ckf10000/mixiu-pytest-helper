@@ -23,9 +23,16 @@ class MiddlewareRepository(object):
         return apollo.get_value(key="device_ids", namespace=namespace) or list()
 
     @classmethod
-    def get_api_user_uuid(cls, apollo: ApolloClient = apollo, namespace: str = "test-data-api") -> int:
-        user_uuid = apollo.get_value(key="user_uuid", namespace=namespace)
-        return int(user_uuid) if isinstance(user_uuid, str) and user_uuid.isdigit() else 0
+    def get_api_user_uuid(cls, apollo: ApolloClient = apollo, namespace: str = "test-data-api-common") -> int:
+        return apollo.get_value(key="login_user_uuid", namespace=namespace) or None
+
+    @classmethod
+    def get_api_protocol(cls, apollo: ApolloClient = apollo, namespace: str = "test-data-api-common") -> str:
+        return apollo.get_value(key="api_protocol", namespace=namespace) or None
+
+    @classmethod
+    def get_api_domain(cls, apollo: ApolloClient = apollo, namespace: str = "test-data-api-common") -> str:
+        return apollo.get_value(key="api_domain", namespace=namespace) or None
 
     @classmethod
     def get_test_data(cls, key: str, namespace: str, apollo: ApolloClient = apollo) -> t.Any:

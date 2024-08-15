@@ -21,17 +21,17 @@ from mixiu_pytest_helper.conftest import get_idle_device, get_phone_device_lock_
 class SetupClass(object):
 
     @classmethod
-    @pytest.fixture(scope="class")
+    @pytest.fixture(scope="class", autouse=True)
     def init_setup(cls):
         logger.info("开始初始化自动化测试环境...")
 
 
 class UiDataSetupClass(SetupClass):
     test_data: dict = dict()
-    config_namespace = "test-data-app"
+    config_namespace = "test-data-ui"
 
     @classmethod
-    @pytest.fixture(scope="class")
+    @pytest.fixture(scope="class", autouse=True)
     def data_setup(cls, request: pytest.FixtureRequest, init_setup: pytest.Function):
         request.cls.test_data = MiddlewareRepository.get_test_datas(namespace=cls.config_namespace)
         logger.info("step1: 获取apollo配置的UI测试【预期数据】成功")
@@ -41,7 +41,7 @@ class DeviceSetupClass(UiDataSetupClass):
     device: DeviceProxy = None
 
     @classmethod
-    @pytest.fixture(scope="class")
+    @pytest.fixture(scope="class", autouse=True)
     def device_setup(cls, data_setup: pytest.Function):
         # 此处的 setup 只会在每个测试类开始时调用一次
         cls.device = get_idle_device(redis_api=lock_client)
@@ -60,7 +60,7 @@ class AppSetupClass(DeviceSetupClass):
     device_api: DeviceApi = None
 
     @classmethod
-    @pytest.fixture(scope="class")
+    @pytest.fixture(scope="class", autouse=True)
     def app_setup(cls, device_setup: pytest.Function):
         cls.device_api = DeviceApi(device=cls.device)
         cls.app_name = cls.test_data.get('app_name')
@@ -88,38 +88,78 @@ class BeforeAppTest(AppSetupClass):
             logger.info("step4.2*: 已退出直播间")
 
 
-class ApiDataSetupClass(SetupClass):
-    test_data: dict = dict()
-    config_namespace = "test-data-api"
-
-    @classmethod
-    @pytest.fixture(scope="class")
-    def data_setup(cls, request: pytest.FixtureRequest, init_setup: pytest.Function):
-        request.cls.test_data = MiddlewareRepository.get_test_datas(namespace=cls.config_namespace)
-        logger.info("step1: 获取apollo配置的API测试【预期数据】成功")
-
-
-class HttpApiSetupClass(ApiDataSetupClass):
+class ApiSetupClass(SetupClass):
     domain: str = None
     protocol: str = None
+    login_user_uuid: int = None
 
     @classmethod
-    @pytest.fixture(scope="class")
-    def http_api_setup(cls, request: pytest.FixtureRequest, data_setup: pytest.Function):
-        request.cls.domain = cls.test_data.get("api_domain")
-        request.cls.protocol = cls.test_data.get("api_protocol")
-        logger.info("step2: 启动HTTP客户端")
+    @pytest.fixture(scope="class", autouse=True)
+    def domain_setup(cls, request: pytest.FixtureRequest, init_setup: pytest.Function):
+        request.cls.domain = MiddlewareRepository.get_api_domain()
+        request.cls.protocol = MiddlewareRepository.get_api_protocol()
+        logger.info("step1: 获取待测试环境: <{}>".format(request.cls.domain))
+        request.cls.api_uuid = MiddlewareRepository.get_api_user_uuid()
+        api_token = MiddlewareRepository.get_login_user_token(uuid=request.cls.api_uuid)
+        request.cls.api_token = api_token.replace('"', '') if api_token else api_token
+        logger.info("step2: 获取待测试用户uuid: <{}>，token: <{}>".format(request.cls.api_uuid, request.cls.api_token))
 
 
-class BeforeApiTest(HttpApiSetupClass):
-    api_uuid: int = None
-    api_token: str = None
+class AndroidApiCommonSetupClass(ApiSetupClass):
+    test_data_common: dict = dict()
+    common_namespace = "test-data-api-android-common"
+
+    @classmethod
+    @pytest.fixture(scope="class", autouse=True)
+    def common_data_setup(cls, request: pytest.FixtureRequest, domain_setup: pytest.Function):
+        request.cls.test_data_common = MiddlewareRepository.get_test_datas(namespace=cls.common_namespace)
+        logger.info("step3: 获取apollo配置的Android API common参数完成")
+
+
+class IOSApiCommonSetupClass(ApiSetupClass):
+    test_data_common: dict = dict()
+    common_namespace = "test-data-api-ios-common"
+
+    @classmethod
+    @pytest.fixture(scope="class", autouse=True)
+    def common_data_setup(cls, request: pytest.FixtureRequest, domain_setup: pytest.Function):
+        request.cls.test_data_common = MiddlewareRepository.get_test_datas(namespace=cls.common_namespace)
+        logger.info("step3: 获取apollo配置的iOS API common参数完成")
+
+
+class AndroidApiDataSetupClass(AndroidApiCommonSetupClass):
+    test_data_api: dict = dict()
+    api_namespace = "test-data-api-android"
+
+    @classmethod
+    @pytest.fixture(scope="class", autouse=True)
+    def http_api_setup(cls, request: pytest.FixtureRequest, common_data_setup: pytest.Function):
+        request.cls.test_data_api = MiddlewareRepository.get_test_datas(namespace=cls.api_namespace)
+        logger.info("step4: 获取apollo配置的Android API请求参数完成")
+
+
+class IOSApiDataSetupClass(AndroidApiCommonSetupClass):
+    test_data_api: dict = dict()
+    api_namespace = "test-data-api-ios"
+
+    @classmethod
+    @pytest.fixture(scope="class", autouse=True)
+    def http_api_setup(cls, request: pytest.FixtureRequest, common_data_setup: pytest.Function):
+        request.cls.test_data_api = MiddlewareRepository.get_test_datas(namespace=cls.api_namespace)
+        logger.info("step4: 获取apollo配置的iOS API请求参数完成")
+
+
+class BeforeAndroidApiTest(AndroidApiDataSetupClass):
 
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
     def before_test_setup(cls, request: pytest.FixtureRequest, http_api_setup: pytest.Function):
-        request.cls.api_uuid = MiddlewareRepository.get_api_user_uuid()
-        request.cls.api_token = MiddlewareRepository.get_login_user_token(uuid=request.cls.api_uuid)
-        logger.info("step3: 获取cache中的待测试用户uuid: <{}>，token: <{}>".format(
-            request.cls.api_uuid, request.cls.api_token
-        ))
+        pass
+
+
+class BeforeIOSApiTest(AndroidApiDataSetupClass):
+
+    @classmethod
+    @pytest.fixture(scope="class", autouse=True)
+    def before_test_setup(cls, request: pytest.FixtureRequest, http_api_setup: pytest.Function):
+        pass

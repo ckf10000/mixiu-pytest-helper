@@ -10,10 +10,10 @@
 # ---------------------------------------------------------------------------------------------------------
 """
 apollo_params_map = {
-    "app_id": "mx-app-autotest",
+    "app_id": "mixiu-app-autotest",
     "cluster": "dev",
     "namespace_name": "application",
-    "secret": "5d11434c423041c7b16f0aee5d880d70",
+    "secret": "29f1628c966444d58dce1e54792ac208",
     "domain": "http://139.199.225.100:30080",  # 通过命令行传递赋值
 }
 
