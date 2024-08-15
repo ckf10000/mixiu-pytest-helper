@@ -111,7 +111,7 @@ class BeforeIOSUiTest(AppSetupClass):
 class ApiSetupClass(SetupClass):
     domain: str = None
     protocol: str = None
-    login_user_uuid: int = None
+    api_uuid: int = None
 
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
