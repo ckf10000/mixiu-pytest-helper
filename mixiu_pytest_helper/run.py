@@ -11,7 +11,9 @@
 """
 import os
 import sys
+import shutil
 import pytest
+import platform
 import subprocess
 import pytest_cov
 import logging.config
@@ -52,11 +54,20 @@ def run_tests(project_path: str = None, report_type: str = ALLURE_DESCRIPTION_MA
     pytest_args.append(test_path)
     pytest.main(args=pytest_args, plugins=pytest_plugins)
     if auto_report is True and is_dir(file_path=str(allure_dir)) is True:
-        allure_report_dir = join_path([project_path, "allure-report"])
+        allure_bin = join_path(
+            [os.getenv('ALLURE_HOME'), 'bin', 'allure.bat' if platform.system() == 'Windows' else 'allure']
+        )
+        allure_report = join_path([project_path, 'allure-report'])
+        if is_dir(file_path=str(allure_report)) is True:
+            shutil.rmtree(path=allure_report)
         # 使用 subprocess 生成报告
-        subprocess.run(
-            ['allure', 'generate', allure_dir, '-o', allure_report_dir], capture_output=False, text=False
-        )
-        subprocess.run(
-            ['allure', 'open', allure_report_dir], capture_output=False, text=False
-        )
+        generate_command = [allure_bin, 'generate', allure_dir, '-o', allure_report]
+        open_command = [allure_bin, 'open', allure_report]
+        try:
+            subprocess.run(generate_command, check=True, capture_output=True, text=True)
+            print("开始运行报表服务......")
+            print("注意：若要终止，请按Ctrl + C 终止")
+            subprocess.run(open_command, check=True, capture_output=True, text=True)
+        except Exception as e:
+            print(e)
+            print("报表服务终止.")
