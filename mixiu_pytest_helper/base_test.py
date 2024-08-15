@@ -17,6 +17,8 @@ from mixiu_pytest_helper.repository import MiddlewareRepository
 from mixiu_app_helper.api.page.popup.gift import UiDailyCheckInApi
 from mixiu_pytest_helper.conftest import get_idle_device, get_phone_device_lock_key
 
+__all__ = ['BeforeAndroidUiTest', 'BeforeIOSUiTest', 'BeforeAndroidApiTest', 'BeforeIOSApiTest']
+
 
 class SetupClass(object):
 
@@ -70,7 +72,25 @@ class AppSetupClass(DeviceSetupClass):
         cls.device_api.restart_app(app_name=cls.app_name)
 
 
-class BeforeUiTest(AppSetupClass):
+class BeforeAndroidUiTest(AppSetupClass):
+
+    @classmethod
+    @pytest.fixture(scope="class", autouse=True)
+    def before_test_setup(cls, app_setup: pytest.Function):
+        popui_api = UiDailyCheckInApi(device=cls.device)
+        signup_button = popui_api.get_signup_button()
+        # 可能存在签到的弹窗
+        if signup_button:
+            logger.info("step4*: 检测到【每日签到】弹窗，关闭弹窗并退出直播室")
+            popui_api.touch_signup_button()
+            logger.info("step4.1*: 已签到")
+            popui_api.touch_signup_submit_button()
+            popui_api.touch_live_leave_enter()
+            popui_api.touch_close_room_button()
+            logger.info("step4.2*: 已退出直播间")
+
+
+class BeforeIOSUiTest(AppSetupClass):
 
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
