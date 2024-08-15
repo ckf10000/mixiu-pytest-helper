@@ -149,24 +149,24 @@ class IOSApiCommonSetupClass(ApiSetupClass):
 
 
 class AndroidApiDataSetupClass(AndroidApiCommonSetupClass):
-    test_data_api: dict = dict()
+    test_data: dict = dict()
     api_namespace = "test-data-api-android"
 
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
     def http_api_setup(cls, request: pytest.FixtureRequest, common_data_setup: pytest.Function):
-        request.cls.test_data_api = MiddlewareRepository.get_test_datas(namespace=cls.api_namespace)
+        request.cls.test_data = MiddlewareRepository.get_test_datas(namespace=cls.api_namespace)
         logger.info("step4: 获取apollo配置的Android API请求参数完成")
 
 
 class IOSApiDataSetupClass(AndroidApiCommonSetupClass):
-    test_data_api: dict = dict()
+    test_data: dict = dict()
     api_namespace = "test-data-api-ios"
 
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
     def http_api_setup(cls, request: pytest.FixtureRequest, common_data_setup: pytest.Function):
-        request.cls.test_data_api = MiddlewareRepository.get_test_datas(namespace=cls.api_namespace)
+        request.cls.test_data = MiddlewareRepository.get_test_datas(namespace=cls.api_namespace)
         logger.info("step4: 获取apollo配置的iOS API请求参数完成")
 
 
