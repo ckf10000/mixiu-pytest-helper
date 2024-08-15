@@ -9,6 +9,7 @@
 # Copyright ©2011-2024. Hunan xxxxxxx Company limited. All rights reserved.
 # ---------------------------------------------------------------------------------------------------------
 """
+import time
 import pytest
 from mixiu_pytest_helper.annotation import logger
 from mixiu_pytest_helper.context import lock_client
@@ -21,11 +22,13 @@ __all__ = ['BeforeAndroidUiTest', 'BeforeIOSUiTest', 'BeforeAndroidApiTest', 'Be
 
 
 class SetupClass(object):
+    timestamp: int = None
 
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
-    def init_setup(cls):
+    def init_setup(cls, request: pytest.FixtureRequest):
         logger.info("开始初始化自动化测试环境...")
+        request.cls.timestamp = int(time.time() * 1000)
 
 
 class UiDataSetupClass(SetupClass):
