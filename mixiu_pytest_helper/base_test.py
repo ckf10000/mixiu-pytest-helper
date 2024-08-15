@@ -112,6 +112,7 @@ class ApiSetupClass(SetupClass):
     domain: str = None
     protocol: str = None
     api_uuid: int = None
+    api_token: str = None
 
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
