@@ -3,7 +3,7 @@
 # ---------------------------------------------------------------------------------------------------------
 # ProjectName:  mixiu-pytest-helper
 # FileName:     context.py
-# Description:  TODO
+# Description:  静态上下文
 # Author:       mfkifhss2023
 # CreateDate:   2024/08/13
 # Copyright ©2011-2024. Hunan xxxxxxx Company limited. All rights reserved.

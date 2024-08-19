@@ -10,11 +10,12 @@
 # ---------------------------------------------------------------------------------------------------------
 """
 import typing as t
-from middleware_helper.redis import Redis
 from apollo_proxy.client import ApolloClient
 from mixiu_pytest_helper.config import apollo_params_map
+from middleware_helper.redis import get_redis_connection, Redis
 
-__all__ = ['ApolloClientManager', 'RedisClientManager']
+__all__ = ['ApolloClientManager', 'RedisClientManager', 'RedisLockClientManager', 'RedisCacheClientManager',
+           'RedisAuthClientManager']
 
 
 class ApolloClientManager:
@@ -37,3 +38,18 @@ class RedisClientManager(object):
 
     def set_redis_data(self, key: str, value: t.Any, ex: int = 3600) -> t.Any:
         return self.redis.set(name=key, value=value, ex=ex)
+
+
+class RedisLockClientManager:
+    def __new__(cls, apollo: ApolloClient, namespace: str = "application", *args, **kwargs):
+        return get_redis_connection(**apollo.get_value(key="redis.lock", namespace=namespace))
+
+
+class RedisCacheClientManager:
+    def __new__(cls, apollo: ApolloClient, namespace: str = "application", *args, **kwargs):
+        return get_redis_connection(**apollo.get_value(key="redis.cache", namespace=namespace))
+
+
+class RedisAuthClientManager:
+    def __new__(cls, apollo: ApolloClient, namespace: str = "application", *args, **kwargs):
+        return get_redis_connection(**apollo.get_value(key="redis.auth", namespace=namespace))

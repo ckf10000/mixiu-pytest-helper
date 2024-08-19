@@ -3,7 +3,7 @@
 # ---------------------------------------------------------------------------------------------------------
 # ProjectName:  mixiu-pytest-helper
 # FileName:     conftest.py
-# Description:  TODO
+# Description:  全局初始化，动态上下文
 # Author:       mfkifhss2023
 # CreateDate:   2024/07/31
 # Copyright ©2011-2024. Hunan xxxxxxx Company limited. All rights reserved.
@@ -11,6 +11,7 @@
 """
 import sys
 from airtest_helper.core import DeviceProxy
+from apollo_proxy.client import ApolloClient
 from mixiu_pytest_helper.annotation import logger
 from mixiu_pytest_helper.repository import MiddlewareRepository
 from mixiu_pytest_helper.infrastructure import RedisClientManager
@@ -23,8 +24,8 @@ def get_phone_device_lock_key(device_ip: str, port: int = None) -> str:
     return string
 
 
-def get_idle_device(redis_api: RedisClientManager) -> DeviceProxy or None:
-    devices = MiddlewareRepository.get_devices()
+def get_idle_device(redis_api: RedisClientManager, apollo: ApolloClient) -> DeviceProxy or None:
+    devices = MiddlewareRepository.get_devices(apollo=apollo)
     for device_info in devices:
         port = device_info.get("port")
         device_ip = device_info.get("device")
@@ -44,24 +45,38 @@ def get_idle_device(redis_api: RedisClientManager) -> DeviceProxy or None:
 
 """
 @pytest.fixture(scope="session")
-def cache_context() -> RedisClientManager:
-    redis_client = RedisCacheClientManager()
+def apollo_context() -> ApolloClient:
+    apollo_client = ApolloClientManager()
+    yield apollo_client
+
+
+@pytest.fixture(scope="session")
+def cache_context(apollo_context: ApolloClient) -> RedisClientManager:
+    redis_client = RedisCacheClientManager(apollo=apollo_context)
     redis_api = RedisClientManager(redis=redis_client)
     yield redis_api
     redis_api.redis.close()
 
 
 @pytest.fixture(scope="session")
-def lock_context() -> RedisClientManager:
-    redis_client = RedisLockClientManager()
+def lock_context(apollo_context: ApolloClient) -> RedisClientManager:
+    redis_client = RedisLockClientManager(apollo=apollo_context)
     redis_api = RedisClientManager(redis=redis_client)
     yield redis_api
     redis_api.redis.close()
 
 
 @pytest.fixture(scope="session")
-def device_context(lock_context: RedisClientManager) -> DeviceProxy:
-    device = get_idle_device(redis_api=lock_context)
+def auth_context(apollo_context: ApolloClient) -> RedisClientManager:
+    redis_client = RedisAuthClientManager(apollo=apollo_context)
+    redis_api = RedisClientManager(redis=redis_client)
+    yield redis_api
+    redis_api.redis.close()
+
+
+@pytest.fixture(scope="session")
+def device_context(apollo_context: ApolloClient, lock_context: RedisClientManager) -> DeviceProxy:
+    device = get_idle_device(redis_api=lock_context, apollo=apollo_context)
     yield device
     if device:
         lock_key = get_phone_device_lock_key(device_ip=device.device_id)

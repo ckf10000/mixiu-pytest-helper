@@ -11,24 +11,28 @@
 """
 import time
 import pytest
+from apollo_proxy.client import ApolloClient
 from mixiu_pytest_helper.annotation import logger
-from mixiu_pytest_helper.context import lock_client
 from airtest_helper.core import DeviceProxy, DeviceApi
 from mixiu_pytest_helper.repository import MiddlewareRepository
 from mixiu_app_helper.api.page.popup.gift import UiDailyCheckInApi
 from mixiu_pytest_helper.conftest import get_idle_device, get_phone_device_lock_key
+from mixiu_pytest_helper.infrastructure import ApolloClientManager, RedisAuthClientManager, RedisLockClientManager, \
+    RedisClientManager
 
 __all__ = ['BeforeAndroidUiTest', 'BeforeIOSUiTest', 'BeforeAndroidApiTest', 'BeforeIOSApiTest']
 
 
 class SetupClass(object):
     timestamp: int = None
+    apollo: ApolloClient = None
 
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
     def init_setup(cls, request: pytest.FixtureRequest):
         logger.info("开始初始化自动化测试环境...")
         request.cls.timestamp = int(time.time() * 1000)
+        request.cls.apollo = ApolloClientManager()
 
 
 class UiDataSetupClass(SetupClass):
@@ -38,7 +42,7 @@ class UiDataSetupClass(SetupClass):
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
     def data_setup(cls, request: pytest.FixtureRequest, init_setup: pytest.Function):
-        request.cls.test_data = MiddlewareRepository.get_test_datas(namespace=cls.config_namespace)
+        request.cls.test_data = MiddlewareRepository.get_test_datas(namespace=cls.config_namespace, apollo=cls.apollo)
         logger.info("step1: 获取apollo配置的UI测试【预期数据】成功")
 
 
@@ -49,7 +53,8 @@ class DeviceSetupClass(UiDataSetupClass):
     @pytest.fixture(scope="class", autouse=True)
     def device_setup(cls, data_setup: pytest.Function):
         # 此处的 setup 只会在每个测试类开始时调用一次
-        cls.device = get_idle_device(redis_api=lock_client)
+        lock_client = RedisClientManager(redis=RedisLockClientManager(apollo=cls.apollo))
+        cls.device = get_idle_device(redis_api=lock_client, apollo=cls.apollo)
         if cls.device is None:
             logger.error("step2: 绑定移动终端设备失败，当前没有空闲设备，或者网络连接不正常")
         else:
@@ -58,6 +63,7 @@ class DeviceSetupClass(UiDataSetupClass):
         if cls.device:
             lock_key = get_phone_device_lock_key(device_ip=cls.device.device_id)
             lock_client.set_redis_data(key=lock_key, value="idle", ex=86400)
+        lock_client.redis.close()
 
 
 class AppSetupClass(DeviceSetupClass):
@@ -120,13 +126,16 @@ class ApiSetupClass(SetupClass):
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
     def domain_setup(cls, request: pytest.FixtureRequest, init_setup: pytest.Function):
-        request.cls.domain = MiddlewareRepository.get_api_domain()
-        request.cls.protocol = MiddlewareRepository.get_api_protocol()
+        request.cls.domain = MiddlewareRepository.get_api_domain(apollo=cls.apollo)
+        request.cls.protocol = MiddlewareRepository.get_api_protocol(apollo=cls.apollo)
         logger.info("step1: 获取待测试环境: <{}>".format(request.cls.domain))
-        request.cls.api_uuid = MiddlewareRepository.get_api_user_uuid()
-        api_token = MiddlewareRepository.get_login_user_token(uuid=request.cls.api_uuid)
+        request.cls.api_uuid = MiddlewareRepository.get_api_user_uuid(apollo=cls.apollo)
+        auth_client = RedisClientManager(redis=RedisAuthClientManager(apollo=cls.apollo))
+        api_token = MiddlewareRepository.get_login_user_token(uuid=request.cls.api_uuid, redis=auth_client)
         request.cls.api_token = api_token.replace('"', '') if api_token else api_token
         logger.info("step2: 获取待测试用户uuid: <{}>，token: <{}>".format(request.cls.api_uuid, request.cls.api_token))
+        yield
+        auth_client.redis.close()
 
 
 class AndroidApiCommonSetupClass(ApiSetupClass):
@@ -136,7 +145,9 @@ class AndroidApiCommonSetupClass(ApiSetupClass):
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
     def common_data_setup(cls, request: pytest.FixtureRequest, domain_setup: pytest.Function):
-        request.cls.test_data_common = MiddlewareRepository.get_test_datas(namespace=cls.common_namespace)
+        request.cls.test_data_common = MiddlewareRepository.get_test_datas(
+            namespace=cls.common_namespace, apollo=cls.apollo
+        )
         logger.info("step3: 获取apollo配置的Android API common参数完成")
 
 
@@ -147,7 +158,9 @@ class IOSApiCommonSetupClass(ApiSetupClass):
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
     def common_data_setup(cls, request: pytest.FixtureRequest, domain_setup: pytest.Function):
-        request.cls.test_data_common = MiddlewareRepository.get_test_datas(namespace=cls.common_namespace)
+        request.cls.test_data_common = MiddlewareRepository.get_test_datas(
+            namespace=cls.common_namespace, apollo=cls.apollo
+        )
         logger.info("step3: 获取apollo配置的iOS API common参数完成")
 
 
@@ -158,7 +171,9 @@ class AndroidApiDataSetupClass(AndroidApiCommonSetupClass):
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
     def http_api_setup(cls, request: pytest.FixtureRequest, common_data_setup: pytest.Function):
-        request.cls.test_data = MiddlewareRepository.get_test_datas(namespace=cls.api_namespace)
+        request.cls.test_data = MiddlewareRepository.get_test_datas(
+            namespace=cls.api_namespace, apollo=cls.apollo
+        )
         logger.info("step4: 获取apollo配置的Android API请求参数完成")
 
 
@@ -169,7 +184,9 @@ class IOSApiDataSetupClass(AndroidApiCommonSetupClass):
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
     def http_api_setup(cls, request: pytest.FixtureRequest, common_data_setup: pytest.Function):
-        request.cls.test_data = MiddlewareRepository.get_test_datas(namespace=cls.api_namespace)
+        request.cls.test_data = MiddlewareRepository.get_test_datas(
+            namespace=cls.api_namespace, apollo=cls.apollo
+        )
         logger.info("step4: 获取apollo配置的iOS API请求参数完成")
 
 
