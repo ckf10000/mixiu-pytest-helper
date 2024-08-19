@@ -9,6 +9,7 @@
 # Copyright ©2011-2024. Hunan xxxxxxx Company limited. All rights reserved.
 # ---------------------------------------------------------------------------------------------------------
 """
+import os
 import typing as t
 from apollo_proxy.client import ApolloClient
 from mixiu_pytest_helper.config import apollo_params_map
@@ -21,10 +22,11 @@ __all__ = ['ApolloClientManager', 'RedisClientManager', 'RedisLockClientManager'
 class ApolloClientManager:
 
     def __new__(cls, *args, **kwargs):
+        app_apollo_params = apollo_params_map.get(os.getenv("APP_NAME"))
         return ApolloClient(
-            domain=apollo_params_map.get('domain'), namespace=apollo_params_map.get('namespace_name'),
-            app_id=apollo_params_map.get('app_id'), cluster=apollo_params_map.get("cluster"),
-            secret=apollo_params_map.get("secret")
+            domain=app_apollo_params.get('domain'), namespace=app_apollo_params.get('namespace_name'),
+            app_id=app_apollo_params.get('app_id'), cluster=app_apollo_params.get("cluster"),
+            secret=app_apollo_params.get("secret")
         )
 
 

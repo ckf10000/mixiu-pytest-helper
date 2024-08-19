@@ -9,12 +9,22 @@
 # Copyright ©2011-2024. Hunan xxxxxxx Company limited. All rights reserved.
 # ---------------------------------------------------------------------------------------------------------
 """
+
 apollo_params_map = {
-    "app_id": "mixiu-app-autotest",
-    "cluster": "dev",
-    "namespace_name": "application",
-    "secret": "29f1628c966444d58dce1e54792ac208",
-    "domain": "http://139.199.225.100:30080",  # 通过命令行传递赋值
+    "mixiu": {
+        "app_id": "mixiu-app-autotest",
+        "cluster": "dev",
+        "namespace_name": "application",
+        "secret": "29f1628c966444d58dce1e54792ac208",
+        "domain": "http://139.199.225.100:30080",  # 通过命令行传递赋值
+    },
+    "catlive": {
+        "app_id": "catshow-app-autotest",
+        "cluster": "dev",
+        "namespace_name": "application",
+        "secret": "3d7e329197244feba35ff6844936ab1f",
+        "domain": "http://139.199.225.100:30080",  # 通过命令行传递赋值
+    }
 }
 
 pytest_config = r"""[pytest]

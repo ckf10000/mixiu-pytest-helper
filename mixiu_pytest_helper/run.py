@@ -20,18 +20,14 @@ import logging.config
 from airtest_helper.dir import join_path
 from mixiu_pytest_helper.dir import init_dir, is_dir
 from allure_pytest.utils import ALLURE_DESCRIPTION_MARK
-from mixiu_pytest_helper.config import apollo_params_map
 from distributed_logging.parse_yaml import ProjectConfig
 from pytest_html.__version import version as html_version
 from pytest_metadata.__version import version as metadata_version
 
 
-def run_tests(project_path: str = None, report_type: str = ALLURE_DESCRIPTION_MARK, app_id: str = None,
-              apollo_secret: str = None, auto_report: bool = False):
-    if apollo_secret:
-        apollo_params_map['secret'] = apollo_secret
-    if app_id:
-        apollo_params_map['app_id'] = app_id
+def run_tests(project_path: str = None, report_type: str = ALLURE_DESCRIPTION_MARK, app_name: str = 'mixiu',
+              auto_report: bool = False):
+    os.environ['APP_NAME'] = app_name
     pytest_args = list()
     pytest_plugins = list()
     run_scripts = sys.argv[0]
