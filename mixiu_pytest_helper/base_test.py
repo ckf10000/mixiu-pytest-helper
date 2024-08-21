@@ -51,17 +51,17 @@ class DeviceSetupClass(UiDataSetupClass):
 
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
-    def device_setup(cls, data_setup: pytest.Function):
+    def device_setup(cls, request: pytest.FixtureRequest, data_setup: pytest.Function):
         # 此处的 setup 只会在每个测试类开始时调用一次
         lock_client = RedisClientManager(redis=RedisLockClientManager(apollo=cls.apollo))
-        cls.device = get_idle_device(redis_api=lock_client, apollo=cls.apollo)
-        if cls.device is None:
+        request.cls.device = get_idle_device(redis_api=lock_client, apollo=cls.apollo)
+        if request.cls.device is None:
             logger.error("step2: 绑定移动终端设备失败，当前没有空闲设备，或者网络连接不正常")
         else:
-            logger.info("step2: 绑定移动终端成功---> {}".format(cls.device.device_id))
+            logger.info("step2: 绑定移动终端成功---> {}".format(request.cls.device.device_id))
         yield
-        if cls.device:
-            lock_key = get_phone_device_lock_key(device_ip=cls.device.device_id)
+        if request.cls.device:
+            lock_key = get_phone_device_lock_key(device_ip=request.cls.device.device_id)
             lock_client.set_redis_data(key=lock_key, value="idle", ex=86400)
         lock_client.redis.close()
 
