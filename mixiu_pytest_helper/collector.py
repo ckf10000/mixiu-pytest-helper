@@ -74,8 +74,10 @@ def collect_marks(collect_dir: str, print_enable: bool = False) -> list:
                     collect_marks.append(marks)
     if print_enable is True and collect_marks:
         df = DataFrame.from_records(collect_marks)
+        df = df[['case_id', 'case_level', 'case_module', 'case_name', 'case_desc']]
         # 打印DataFrame
-        print(df.to_string(justify='left', index=False))
+        # print(df.to_string(justify='left', index=False))
+        print(df.to_markdown(index=True, tablefmt="grid"))
     return collect_marks
 
 
