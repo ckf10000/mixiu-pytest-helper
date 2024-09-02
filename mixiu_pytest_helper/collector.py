@@ -12,12 +12,28 @@
 import json
 import importlib
 import subprocess
-
-from mixiu_pytest_helper.dir import get_project_path, delete_file, init_dir
+from pandas import set_option, DataFrame
 from mixiu_pytest_helper.log import logger
+from mixiu_pytest_helper.dir import get_project_path, delete_file, init_dir
+
+"""
+display.max_rows:     设置要显示的最大行数
+display.max_columns:  设置要显示的最大列数
+display.width:        设置显示的宽度，以字符数为单位
+display.precision:    设置浮点数的精度
+display.max_colwidth: 设置要显示的列的最大宽度，以字符数为单位
+"""
+
+# 设置要显示的最大行数和列数
+set_option('display.width', 65535)
+set_option('display.max_rows', 5000)
+set_option('display.max_columns', 1024)
+set_option('display.max_colwidth', 1000)
+# 设置打印格式，使列头和行内容对齐
+set_option('display.unicode.east_asian_width', True)
 
 
-def collect_marks(collect_dir: str) -> list:
+def collect_marks(collect_dir: str, print_enable: bool = False) -> list:
     if collect_dir is None:
         collect_dir = get_project_path()
     init_dir(project_path=collect_dir)
@@ -56,6 +72,10 @@ def collect_marks(collect_dir: str) -> list:
                     function_name = node_id_slice[-1]
                     marks.update(module_name=module_name, class_name=class_name, function_name=function_name)
                     collect_marks.append(marks)
+    if print_enable is True and collect_marks:
+        df = DataFrame.from_records(collect_marks)
+        # 打印DataFrame
+        print(df.to_string(justify='left', index=False))
     return collect_marks
 
 
