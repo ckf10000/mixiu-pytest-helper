@@ -107,7 +107,7 @@ class BeforeIOSUiTest(AppSetupClass):
     @pytest.fixture(scope="class", autouse=True)
     def before_test_setup(cls, app_setup: pytest.Function):
         popui_api = UiDailyCheckInApi(device=cls.device)
-        signup_button = popui_api.get_signup_button()
+        signup_button = popui_api.get_signup_button(loop=5, is_log_output=False)
         # 可能存在签到的弹窗
         if signup_button:
             logger.info("step4*: 检测到【每日签到】弹窗，关闭弹窗并退出直播室")
@@ -117,6 +117,8 @@ class BeforeIOSUiTest(AppSetupClass):
             popui_api.touch_live_leave_enter()
             popui_api.touch_close_room_button()
             logger.info("step4.2*: 已退出直播间")
+        else:
+            logger.info("step4*: 没有检测到【每日签到】弹窗，签到步骤将跳过")
 
 
 class ApiSetupClass(SetupClass):
